@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
     void staticCall(){
         if(mp==null){
             mp = MediaPlayer.create(this,R.raw.ring);
+            seekBar.setMax(mp.getDuration());
         }
         if(!mp.isPlaying()){
             mp.start();
@@ -69,7 +70,8 @@ public class MainActivity extends AppCompatActivity {
                         seekBar.post(new Runnable() {
                             @Override
                             public void run() {
-                                seekBar.setScaleX(curPos);
+                                //seekBar.setScaleX(curPos);
+                                seekBar.setProgress(curPos);
                             }
                         });
 

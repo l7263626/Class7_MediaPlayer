@@ -1,6 +1,8 @@
 package tw.idv.chunhsin.class7_mediaplayer;
 
+import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -39,7 +41,8 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View view) {
             switch(view.getId()){
                 case R.id.button:
-                    staticCall();
+                    //staticCall();
+                    callMediaPlayer();
                     break;
                 case R.id.button2:
                     mp.pause();
@@ -78,6 +81,28 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             });
+        }
+    }
+
+    void callMediaPlayer(){
+        mp = new MediaPlayer();
+        mp.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mediaPlayer) {
+                mediaPlayer.start();
+            }
+        });
+//        File path= Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
+//        path.toString()
+        String path = "android.resource://tw.idv.chunhsin.class7_mediaplayer/"+R.raw.flourish;
+        Uri uri = Uri.parse(path);
+        try {
+            //mp.setDataSource(path);
+            mp.setDataSource(this,uri);
+            mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mp.prepareAsync();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

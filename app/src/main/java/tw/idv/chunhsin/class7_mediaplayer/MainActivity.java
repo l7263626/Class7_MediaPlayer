@@ -2,8 +2,11 @@ package tw.idv.chunhsin.class7_mediaplayer;
 
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.MediaRecorder;
 import android.net.Uri;
+import android.os.Environment;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,21 +21,30 @@ import android.widget.TextView;
 
 import org.w3c.dom.Text;
 
+import java.io.File;
 import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity implements MediaPlayer.OnPreparedListener,MediaPlayer.OnCompletionListener {
 
-    Button button,button2,button3;
+    Button button,button2,button3,button4,button5;
     SurfaceView surfaceView;
     SurfaceHolder sHolder;
     SeekBar seekBar;
     MediaPlayer mp,nextMp;
     TextView textView;
     int totalSecs;
+    MediaRecorder mr;
+    File path;
+    String strPath;
+    File recFile;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
+        recFile = new File(path,"myRec.3gp");
+        strPath = recFile.toString();
         findviews();
     }
 
@@ -61,6 +73,10 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnPre
         button2.setOnClickListener(onClickListener);
         button3=(Button)findViewById(R.id.button3);
         button3.setOnClickListener(onClickListener);
+        button4=(Button)findViewById(R.id.button4);
+        button4.setOnClickListener(btnRecClick);
+        button5=(Button)findViewById(R.id.button5);
+        button5.setOnClickListener(btnRecClick);
         seekBar=(SeekBar)findViewById(R.id.seekBar);
         seekBar.setOnSeekBarChangeListener(onSeekBarChangeListener);
         textView=(TextView)findViewById(R.id.textView);
@@ -71,13 +87,13 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnPre
         public void onClick(View view) {
             switch(view.getId()){
                 case R.id.button:
-                    staticCall();
-                    /*
+                    //staticCall();
+
                     try {
                         callMediaPlayer();
                     } catch (IOException e) {
                         e.printStackTrace();
-                    }*/
+                    }
                     break;
                 case R.id.button2:
                     mp.pause();
@@ -95,7 +111,9 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnPre
 
     void staticCall(){
         if(mp==null){
-            mp = MediaPlayer.create(this, R.raw.littlemonster);
+
+            //mp = MediaPlayer.create(this, R.raw.littlemonster);
+            mp = MediaPlayer.create(this,Uri.parse(strPath));
             mp.setDisplay(sHolder);
             totalSecs = mp.getDuration();
             seekBar.setMax(totalSecs);
@@ -164,8 +182,9 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnPre
         mp.setOnCompletionListener(this);
 //        File path= Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
 //        path.toString()
-        String path = "android.resource://tw.idv.chunhsin.class7_mediaplayer/"+R.raw.flourish;
-        Uri uri = Uri.parse(path);
+        //String path = "android.resource://tw.idv.chunhsin.class7_mediaplayer/"+R.raw.flourish;
+        Uri uri = Uri.parse(strPath);
+        /*
         nextMp = new MediaPlayer();
         nextMp.setDataSource(this,Uri.parse("android.resource://tw.idv.chunhsin.class7_mediaplayer/"+R.raw.ring));
         nextMp.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
@@ -175,6 +194,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnPre
             }
         });
         nextMp.prepareAsync();
+        */
         try {
             //mp.setDataSource(path);
             mp.setDataSource(this,uri);
@@ -245,4 +265,33 @@ public class MainActivity extends AppCompatActivity implements MediaPlayer.OnPre
         textView.setText(sb);
         mediaPlayer.start();
     }
+
+
+    //======== MediaRecorder的部份==============
+    View.OnClickListener btnRecClick=new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            switch (view.getId()){
+                case R.id.button4:
+                    mr = new MediaRecorder();
+                    mr.setAudioSource(MediaRecorder.AudioSource.MIC);
+                    mr.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+                    mr.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_WB);
+                    mr.setOutputFile(strPath);
+                    try {
+                        mr.prepare();
+                        mr.start();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case R.id.button5:
+                    mr.stop();
+                    mr.release();
+                    mr=null;
+                    break;
+            }
+
+        }
+    };
 }
